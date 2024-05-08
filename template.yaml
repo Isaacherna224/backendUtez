@@ -24,7 +24,22 @@ Resources:
         HelloWorld:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /hello
+            Path: /hello/{id}/{name}
+            Method: get
+
+  GetDataStudentFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: get_data_student/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        GetDataStudent:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /getDataStudent
             Method: get
 
 Outputs:
@@ -40,3 +55,14 @@ Outputs:
   HelloWorldFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
     Value: !GetAtt HelloWorldFunctionRole.Arn
+
+
+  GetDataApi:
+    Description: "API Gateway endpoint URL for Prod stage for getDataStudent function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/getDataStudent/"
+  GetDataStudentFunction:
+    Description: "getDataStudent Lambda Function ARN"
+    Value: !GetAtt GetDataStudentFunction.Arn
+  GetDataStudentFunctionIamRole:
+    Description: "Implicit IAM Role created for GetDataStudent function"
+    Value: !GetAtt GetDataStudentRole.Arn
