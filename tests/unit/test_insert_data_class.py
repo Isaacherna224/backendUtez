@@ -6,7 +6,6 @@ from insert_data_class import app
 @pytest.fixture()
 def apigw_event():
     """ Generates API GW Event"""
-
     return {
         "body": '{ "test": "prueba unitaria en insert_data_class"}',
         "resource": "/{proxy+}"
