@@ -95,7 +95,6 @@ Resources:
             RestApiId: !Ref ClassApi
             Path: /insert_data
             Method: post
-
 Outputs:
   StudentApiUrl:
     Description: "API Gateway endpoint URL for Prod stage for Student Model"

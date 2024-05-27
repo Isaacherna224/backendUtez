@@ -1,6 +1,5 @@
 import pymysql
 
-# Variables de entorno para la configuración de RDS
 rds_host = "utez.cdwwqmfwlvzd.us-east-1.rds.amazonaws.com"
 rds_user = "admin"
 rds_password = "Capufe037"
