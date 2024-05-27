@@ -1,32 +1,40 @@
-name: Build and Deploy
+name: Build, Test, and Deploy
 
 on:
   push:
     branches:
       - main
-      - master
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  sonarcloud:
-    name: SonarCloud
+  setup:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-
+          fetch-depth: 0
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.12.3'
-
-      - name: Install dependencies
+      - name: Install dependencies for hello_world
         run: |
-          python -m pip install --upgrade pip
+          cd hello_world
           pip install -r requirements.txt
 
+
+      - name: Install dependencies for get_data_student
+        run: |
+          cd get_data_student
+          pip install -r requirements.txt
+
+  sonarcloud:
+    name: SonarCloud
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
@@ -36,24 +44,10 @@ jobs:
   deploy:
     name: Deploy to AWS
     runs-on: ubuntu-latest
-    needs: sonarcloud  # This ensures the deploy job runs after the SonarCloud job
-    if: ${{ github.event_name == 'push' }}  # Only deploy on push events, not PRs
+    needs: [setup,sonarcloud]
+    if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.12.3'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
       - name: Install AWS CLI
         run: |
           sudo apt-get update
@@ -65,7 +59,6 @@ jobs:
 
       - name: Build SAM application
         run: sam build
-
       - name: Deploy SAM application
         run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name utez --capabilities CAPABILITY_IAM
         env:
