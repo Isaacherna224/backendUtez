@@ -10,6 +10,7 @@ Globals:
     MemorySize: 128
 
 Resources:
+
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -32,6 +33,18 @@ Resources:
                   - logs:PutLogEvents
                 Resource: arn:aws:logs:*:*:*
 
+  StudentApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: StudentApi
+      StageName: Prod
+
+  ClassApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: ClassApi
+      StageName: Prod
+
   UpdateDataStudentFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -45,6 +58,7 @@ Resources:
         UpdateDataStudent:
           Type: Api
           Properties:
+            RestApiId: !Ref StudentApi
             Path: /update_data
             Method: patch
 
@@ -61,19 +75,43 @@ Resources:
         GetDataStudent:
           Type: Api
           Properties:
+            RestApiId: !Ref StudentApi
             Path: /get_data
             Method: get
 
+  InsertDataClassFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: insert_data_class/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Architectures:
+        - x86_64
+      Events:
+        GetDataStudent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ClassApi
+            Path: /insert_data
+            Method: post
+
 Outputs:
-  StudentApi:
+  StudentApiUrl:
     Description: "API Gateway endpoint URL for Prod stage for Student Model"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
-  UpdateDataStudentFunction:
+    Value: !Sub "https://${StudentApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  ClassApi:
+    Description: "API Gateway endpoint URL for Prod stage for Class Model"
+    Value: !Sub "https://${ClassApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  UpdateDataStudentFunctionArn:
     Description: "Update data student Lambda Function ARN"
     Value: !GetAtt UpdateDataStudentFunction.Arn
-  GetDataStudentFunction:
+  GetDataStudentFunctionArn:
     Description: "Get data student Lambda Function ARN"
     Value: !GetAtt GetDataStudentFunction.Arn
+  InsertDataClassFunctionArn:
+    Description: "Insert data class Lambda Function ARN"
+    Value: !GetAtt InsertDataClassFunction.Arn
   LambdaExecutionRoleArn:
     Description: "Lambda Execution Role ARN"
     Value: !GetAtt LambdaExecutionRole.Arn
