@@ -10,33 +10,20 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     steps:
-
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.12.3'
-
       - name: Install dependencies for hello_world
         run: |
           cd hello_world
           pip install -r requirements.txt
-
-
       - name: Install dependencies for get_data_student
         run: |
           cd get_data_student
           pip install -r requirements.txt
-
-
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
-    needs: setup
     steps:
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
