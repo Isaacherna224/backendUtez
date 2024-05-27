@@ -6,8 +6,8 @@ Description: >
 
 Globals:
   Function:
-    Timeout: 3
-    MemorySize: 128
+    Timeout: 10
+    MemorySize: 256
 
 Resources:
 
