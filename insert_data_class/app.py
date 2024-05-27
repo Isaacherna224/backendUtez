@@ -6,42 +6,34 @@ rds_password = "Capufe037"
 rds_db = "utez_db"
 
 
-def create_database_and_tables():
-    connection = pymysql.connect(host=rds_host, user=rds_user, password=rds_password)
+def lambda_handler(event, __):
+    grado = event['pathParameters'].get('grado')
+    grupo = event['pathParameters'].get('grupo')
+    profesor = event['pathParameters'].get('profesor')
+
+    if grado is None or grupo is None or profesor is None:
+        return {
+            'statusCode': 400,
+            'body': 'Missing required parameters.'
+        }
+
+    insert_into_class(grado, grupo, profesor)
+
+    return {
+        'statusCode': 200,
+        'body': 'Record inserted successfully.'
+    }
+
+
+def insert_into_class(grado, grupo, profesor):
+    connection = pymysql.connect(host=rds_host, user=rds_user, password=rds_password, db=rds_db)
 
     try:
         with connection.cursor() as cursor:
-            cursor.execute(f"CREATE DATABASE IF NOT EXISTS {rds_db}")
-            cursor.execute(f"USE {rds_db}")
-
-            create_class_table = """
-            CREATE TABLE IF NOT EXISTS class (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                grado INT NOT NULL,
-                grupo VARCHAR(5) NOT NULL,
-                profesor VARCHAR(45) NOT NULL
-            )
+            insert_query = """
+            INSERT INTO class (grado, grupo, profesor) VALUES (%s, %s, %s)
             """
-            cursor.execute(create_class_table)
-
-            create_students_table = """
-            CREATE TABLE IF NOT EXISTS students (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(100) NOT NULL,
-                id_class INT,
-                FOREIGN KEY (id_class) REFERENCES class(id)
-            )
-            """
-            cursor.execute(create_students_table)
+            cursor.execute(insert_query, (grado, grupo, profesor))
             connection.commit()
-
     finally:
         connection.close()
-
-
-def lambda_handler(event, context):
-    create_database_and_tables()
-    return {
-        'statusCode': 200,
-        'body': 'Database and tables created successfully.'
-    }

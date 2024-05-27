@@ -93,15 +93,19 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ClassApi
-            Path: /insert_data
+            Path: /insert_data/{grado}/{grupo}/{profesor}
             Method: post
+
 Outputs:
-  StudentApiUrl:
-    Description: "API Gateway endpoint URL for Prod stage for Student Model"
-    Value: !Sub "https://${StudentApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
-  ClassApi:
-    Description: "API Gateway endpoint URL for Prod stage for Class Model"
-    Value: !Sub "https://${ClassApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  UpdateDataStudentApiUrl:
+    Description: "API Gateway endpoint URL with path update_data for Prod stage to Student Model"
+    Value: !Sub "https://${StudentApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update_data"
+  GetDataStudentApiUrl:
+    Description: "API Gateway endpoint URL with path get_data for Prod stage to Student Model"
+    Value: !Sub "https://${StudentApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_data"
+  InsertDataClassApi:
+    Description: "API Gateway endpoint URL with path insert_data for Prod stage to Class Model"
+    Value: !Sub "https://${ClassApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/insert_data/{grado}/{grupo}/{profesor}"
   UpdateDataStudentFunctionArn:
     Description: "Update data student Lambda Function ARN"
     Value: !GetAtt UpdateDataStudentFunction.Arn
