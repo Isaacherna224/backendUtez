@@ -189,11 +189,14 @@ celerybeat-schedule.*
 # Environments
 .env
 .venv
+.envUtezNoveno
 env/
 venv/
+envUtezNoveno/
 ENV/
 env.bak/
 venv.bak/
+envUtezNoveno.back/
 
 # Spyder project settings
 .spyderproject
