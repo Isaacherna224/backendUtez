@@ -6,7 +6,7 @@ def lambda_handler(event, __):
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "message": "hello world",
+            "message": "lambda update data student",
             # "location": ip.text.replace("\n", "")
         }),
     }

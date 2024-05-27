@@ -1,6 +1,6 @@
 import pytest
 
-from hello_world import app
+from update_data_student import app
 
 
 @pytest.fixture()
@@ -8,7 +8,7 @@ def apigw_event():
     """ Generates API GW Event"""
 
     return {
-        "body": '{ "test": "prueba unitaria en hello_world"}',
+        "body": '{ "test": "prueba unitaria en update_data_student"}',
         "resource": "/{proxy+}",
     }
 
