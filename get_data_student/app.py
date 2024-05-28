@@ -6,6 +6,6 @@ def lambda_handler(event, __):
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "message": "get Data Students",
+            "message": "get Data Students lambda",
         }),
     }
