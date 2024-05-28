@@ -7,9 +7,12 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 jobs:
+
+
   sonarcloud:
     name: SonarCloud
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -19,14 +22,17 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
+
       - name: Install dependencies for update_data_student
         run: |
           cd update_data_student
           pip install -r requirements.txt
+
       - name: Install dependencies for get_data_student
         run: |
           cd get_data_student
           pip install -r requirements.txt
+
       - name: Install dependencies for insert_data_class
         run: |
           cd insert_data_class
@@ -65,6 +71,7 @@ jobs:
         run: |
           cd insert_data_class
           pip install -r requirements.txt
+
       - name: Install AWS CLI
         run: |
           sudo apt-get update
