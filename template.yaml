@@ -6,7 +6,7 @@ Description: >
 
 Globals:
   Function:
-    Timeout: 120
+    Timeout: 10
     MemorySize: 256
 
 Resources:
@@ -31,13 +31,8 @@ Resources:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
+                  - secretsmanager:GetSecretValue
                 Resource: arn:aws:logs:*:*:*
-
-  StudentApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      Name: StudentApi
-      StageName: Prod
 
   ClassApi:
     Type: AWS::Serverless::Api
@@ -45,44 +40,10 @@ Resources:
       Name: ClassApi
       StageName: Prod
 
-  UpdateDataStudentFunction:
+  GetDataClassByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: update_data_student/
-      Handler: app.lambda_handler
-      Runtime: python3.9
-      Role: !GetAtt LambdaExecutionRole.Arn
-      Architectures:
-        - x86_64
-      Events:
-        UpdateDataStudent:
-          Type: Api
-          Properties:
-            RestApiId: !Ref StudentApi
-            Path: /update_data
-            Method: patch
-
-  GetDataStudentFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: get_data_student/
-      Handler: app.lambda_handler
-      Runtime: python3.9
-      Role: !GetAtt LambdaExecutionRole.Arn
-      Architectures:
-        - x86_64
-      Events:
-        GetDataStudent:
-          Type: Api
-          Properties:
-            RestApiId: !Ref StudentApi
-            Path: /get_data
-            Method: get
-
-  InsertDataClassFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: insert_data_class/
+      CodeUri: get_class_by_id/
       Handler: app.lambda_handler
       Runtime: python3.9
       Role: !GetAtt LambdaExecutionRole.Arn
@@ -93,28 +54,21 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref ClassApi
-            Path: /insert_data/{grado}/{grupo}/{profesor}
-            Method: post
+            Path: /{id}
+            Method: get
+      Environment:
+        Variables:
+          REGION_NAME: "us-east-1"
+          DATA_BASE: "utez_db"
+          SECRET_NAME: "dev/Utez/Mysql"
 
 Outputs:
-  UpdateDataStudentApiUrl:
-    Description: "API Gateway endpoint URL with path update_data for Prod stage to Student Model"
-    Value: !Sub "https://${StudentApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/update_data"
-  GetDataStudentApiUrl:
-    Description: "API Gateway endpoint URL with path get_data for Prod stage to Student Model"
-    Value: !Sub "https://${StudentApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/get_data"
-  InsertDataClassApi:
-    Description: "API Gateway endpoint URL with path insert_data for Prod stage to Class Model"
-    Value: !Sub "https://${ClassApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/insert_data/{grado}/{grupo}/{profesor}"
-  UpdateDataStudentFunctionArn:
-    Description: "Update data student Lambda Function ARN"
-    Value: !GetAtt UpdateDataStudentFunction.Arn
-  GetDataStudentFunctionArn:
-    Description: "Get data student Lambda Function ARN"
-    Value: !GetAtt GetDataStudentFunction.Arn
-  InsertDataClassFunctionArn:
-    Description: "Insert data class Lambda Function ARN"
-    Value: !GetAtt InsertDataClassFunction.Arn
+  GetDataClassByIdFunctionApiUrl:
+    Description: "API Gateway endpoint URL with path get_class_by_id for Prod stage to Class Model"
+    Value: !Sub "https://${ClassApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/{id}"
+  GetDataClassByIdFunctionArn:
+    Description: "Get data Class By ID Lambda Function ARN"
+    Value: !GetAtt GetDataClassByIdFunction.Arn
   LambdaExecutionRoleArn:
     Description: "Lambda Execution Role ARN"
     Value: !GetAtt LambdaExecutionRole.Arn

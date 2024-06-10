@@ -1,0 +1,3 @@
+boto3==1.34.117
+botocore==1.34.117
+PyMySQL==1.1.1

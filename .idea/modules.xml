@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/utez.iml" filepath="$PROJECT_DIR$/.idea/utez.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/backendUtez.iml" filepath="$PROJECT_DIR$/.idea/backendUtez.iml" />
     </modules>
   </component>
 </project>
