@@ -27,10 +27,10 @@ class TestApp(unittest.TestCase):
     @patch("get_class_by_id.app.execute_query")
     @patch("get_class_by_id.app.close_connection")
     def test_lambda_handler(self, mock_close_connection, mock_execute_query, mock_connect_to_db, mock_get_secret):
-        mock_get_secret.return_value = {'username': 'username', 'password': 'password', 'engine': 'mysql',
-                                        'host': 'host', 'port': 3306, 'dbInstanceIdentifier': 'utez'}
+        mock_get_secret.return_value = {'username': 'usuario', 'password': '1234567', 'engine': 'mysql',
+                                        'host': 'host', 'port': 3306, 'dbInstanceIdentifier': 'utezbd'}
         mock_connect_to_db.return_value = True
-        mock_execute_query.return_value = [{"id": 5, "grade": 1, "group": 'C', "name": 'Jose Perez'}]
+        mock_execute_query.return_value = [{"id": 5, "grade": 1, "group": 'C', "name": 'Jose Antonio'}]
         result = app.lambda_handler(mock_body, None)
         self.assertEqual(result['statusCode'], 200)
         body = json.loads(result['body'])
@@ -45,8 +45,8 @@ class TestApp(unittest.TestCase):
     @patch("get_class_by_id.app.close_connection")
     def test_lambda_handler_no_data(self, mock_close_connection, mock_execute_query, mock_connect_to_db,
                                     mock_get_secret):
-        mock_get_secret.return_value = {'username': 'username', 'password': 'password', 'engine': 'mysql',
-                                        'host': 'host', 'port': 3306, 'dbInstanceIdentifier': 'utez'}
+        mock_get_secret.return_value = {'username': 'usuario', 'password': '123456', 'engine': 'mysql',
+                                        'host': 'host', 'port': 3306, 'dbInstanceIdentifier': 'utezbd'}
         mock_connect_to_db.return_value = True
         mock_execute_query.return_value = {}
         result = app.lambda_handler(mock_body, None)
@@ -59,18 +59,17 @@ class TestApp(unittest.TestCase):
     @patch.dict("os.environ", {"REGION_NAME": "mexico", "DATA_BASE": "bd", "SECRET_NAME": "secret"})
     @patch("get_class_by_id.app.get_secret")
     def test_lambda_handler_get_secret_fail(self, mock_get_secret):
-        mock_get_secret.side_effect = ClientError({'Error': {'Message':
-                                                                 "Secrets Manag",
-                                                             'Code': 'ResourceNotFoundException'}, 'ResponseMetadata':
-                                                       {'RequestId': 'e95b0796',
-                                                        'HTTPStatusCode': 400, 'HTTPHeaders':
-                                                            {'x-amzn-requestid': 'e95b0796',
-                                                             'content-type': 'applicat',
-                                                             'content-length': '99',
-                                                             'date': 'Sat, 15 Jun',
-                                                             'connection': 'close'},
-                                                        'RetryAttempts': 0}, 'Message':
-                                                       "Secrets Manager c"},
+        mock_get_secret.side_effect = ClientError({'Error': {'Message': "Secrets Manager",
+                                                             'Code': 'ResourceNotFoundException'},
+                                                   'ResponseMetadata': {'RequestId': 'e95b0796', 'HTTPStatusCode': 400,
+                                                                        'HTTPHeaders':
+                                                                            {'x-amzn-requestid': 'e95b0796',
+                                                                             'content-type': 'applicat',
+                                                                             'content-length': '99',
+                                                                             'date': 'Sat, 15 Jun',
+                                                                             'connection': 'close'},
+                                                                        'RetryAttempts': 0},
+                                                   'Message': "Secrets Manager c"},
                                                   "GetSecretValue")
 
         result = app.lambda_handler(mock_body, None)
