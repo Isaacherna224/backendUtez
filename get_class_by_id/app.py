@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import boto3
 from botocore.exceptions import ClientError
 import json
-from typing import Any, Dict
+from typing import Dict
 from .connection_bd import connect_to_db, execute_query, close_connection
 import logging
 
@@ -14,8 +14,12 @@ logging.basicConfig(level=logging.INFO)
 
 
 def lambda_handler(event, __):
-    path_parameters = event.get('pathParameters', {})
-    id_param = path_parameters.get('id')
+    body_parameters = json.loads(event["body"])
+    id_param = body_parameters.get('id')
+
+    #path_parameters = event.get('pathParameters', {})
+    #id_param = path_parameters.get('id')
+
     if id_param is None:
         return {
             "statusCode": 400,
@@ -34,7 +38,15 @@ def lambda_handler(event, __):
     # Retrieve database credentials from AWS Secrets Manager
     secret_name = os.environ['SECRET_NAME']
     region_name = os.environ['REGION_NAME']
-    secret = get_secret(secret_name, region_name)
+    try:
+        secret_name="jhsjdhsdkjdshjsdhj"
+        secret = get_secret(secret_name, region_name)
+    except ClientError as e:
+        return {
+            'statusCode': 400,
+            'body': json.dumps(
+                {'error': "An error occurred while processing the request get_secret"})
+        }
 
     # Database connection parameters
     host = secret['host']
@@ -52,7 +64,6 @@ def lambda_handler(event, __):
         try:
             # Execute the query
             results = execute_query(connection, query)
-
             # Close the connection
             close_connection(connection)
 
