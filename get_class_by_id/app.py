@@ -39,7 +39,6 @@ def lambda_handler(event, __):
     secret_name = os.environ['SECRET_NAME']
     region_name = os.environ['REGION_NAME']
     try:
-        secret_name="jhsjdhsdkjdshjsdhj"
         secret = get_secret(secret_name, region_name)
     except ClientError as e:
         return {
