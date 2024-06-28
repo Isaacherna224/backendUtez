@@ -12,6 +12,12 @@ mock_body = {
     })
 }
 
+mock_body_no_id = {
+    "body": json.dumps({
+        "id": None
+    })
+}
+
 mock_path = {
     "body": {
         "id": 1
@@ -77,3 +83,42 @@ class TestApp(unittest.TestCase):
         body = json.loads(result["body"])
         self.assertIn("error", body)
         self.assertEqual(body["error"], "An error occurred while processing the request get_secret")
+
+    def test_lambda_handler_no_id(self):
+        result = app.lambda_handler(mock_body_no_id, None)
+        self.assertEqual(result["statusCode"], 400)
+        body = json.loads(result["body"])
+        self.assertIn("message", body)
+        self.assertEqual(body["message"], "Id is required.")
+
+    @patch.dict("os.environ", {"REGION_NAME": "mexico", "DATA_BASE": "bd", "SECRET_NAME": "secret"})
+    @patch("get_class_by_id.app.get_secret")
+    @patch("get_class_by_id.app.connect_to_db")
+    @patch("get_class_by_id.app.execute_query")
+    def test_lambda_handler_execute_query_fail(self, mock_execute_query, mock_connect_to_db, mock_get_secret):
+        mock_get_secret.return_value = {'username': 'usuario', 'password': '123456', 'engine': 'mysql',
+                                        'host': 'host', 'port': 3306, 'dbInstanceIdentifier': 'utezbd'}
+        mock_connect_to_db.return_value = True
+        mock_execute_query.side_effect = Exception("La query esta mal")
+        result = app.lambda_handler(mock_body, None)
+        self.assertEqual(result["statusCode"], 500)
+        body = json.loads(result["body"])
+        self.assertIn("error", body)
+        self.assertEqual(body["error"], "An error occurred while processing the request.")
+
+    @patch.dict("os.environ", {"REGION_NAME": "mexico", "DATA_BASE": "bd", "SECRET_NAME": "secret"})
+    @patch("get_class_by_id.app.get_secret")
+    @patch("get_class_by_id.app.connect_to_db")
+    @patch("get_class_by_id.app.execute_query")
+    @patch("get_class_by_id.app.close_connection")
+    def test_lambda_handler_close_connection_fail(self, mock_close_connection, mock_execute_query, mock_connect_to_db, mock_get_secret):
+        mock_get_secret.return_value = {'username': 'usuario', 'password': '123456', 'engine': 'mysql',
+                                        'host': 'host', 'port': 3306, 'dbInstanceIdentifier': 'utezbd'}
+        mock_connect_to_db.return_value = True
+        mock_execute_query.return_value = [{"id": 5, "grade": 1, "group": 'C', "name": 'Jose Antonio'}]
+        mock_close_connection.side_effect = Exception("Fallo al cerrar la conexion")
+        result = app.lambda_handler(mock_body, None)
+        self.assertEqual(result["statusCode"], 500)
+        body = json.loads(result["body"])
+        self.assertIn("error", body)
+        self.assertEqual(body["error"], "An error occurred while processing the request.")

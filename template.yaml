@@ -34,6 +34,34 @@ Resources:
                   - secretsmanager:GetSecretValue
                 Resource: arn:aws:logs:*:*:*
 
+  AdminApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: AdminApi
+      StageName: Prod
+
+  AccesProfileAdmin:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: profile_admin/
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Architectures:
+        - x86_64
+      Events:
+        GetDataStudent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref AdminApi
+            Path: /{id}
+            Method: get
+      Environment:
+        Variables:
+          REGION_NAME: "us-east-1"
+          DATA_BASE: "utez_db"
+          SECRET_NAME: "dev/Utez/Mysql"
+
   ClassApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -45,7 +73,7 @@ Resources:
     Properties:
       CodeUri: get_class_by_id/
       Handler: app.lambda_handler
-      Runtime: python3.9
+      Runtime: python3.12
       Role: !GetAtt LambdaExecutionRole.Arn
       Architectures:
         - x86_64

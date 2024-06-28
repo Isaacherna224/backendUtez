@@ -16,7 +16,7 @@ def connect_to_db(host, user, password, database):
         return connection
     except Exception as e:
         logging.error("Error connecting to the database: %s", e)
-        return None
+        raise e
 
 
 def execute_query(connection, query):
@@ -27,10 +27,13 @@ def execute_query(connection, query):
             return result
     except Exception as e:
         logging.error("Error executing query: %s", e)
-        return None
+        raise e
 
 
 def close_connection(connection):
-    if connection:
+    try:
         connection.close()
         logging.info("Connection closed successfully.")
+    except Exception as e:
+        logging.error("Error close Connection: %s", e)
+        raise e
